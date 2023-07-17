@@ -6,6 +6,7 @@ from .ViewerBase import ViewerBase
 from .VisualisationOptions import *
 from .VtkViewer import *
 from .VtkViewerNew import *
+from .VtkViewerPBR import *
 from .BlenderViewer import *
 from .RenderWriter import *
 from .Convert import *
