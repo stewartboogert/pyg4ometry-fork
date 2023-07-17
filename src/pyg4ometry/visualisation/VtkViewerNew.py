@@ -43,6 +43,8 @@ class VtkViewerNew(_ViewerBase):
         if axisCubeWidget:
             self.addAxesWidget()
 
+        self.bBuiltPipelines = False
+
     def initVtk(self):
         # create a renderer
         self.ren = _vtk.vtkRenderer()
