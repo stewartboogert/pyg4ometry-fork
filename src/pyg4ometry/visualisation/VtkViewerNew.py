@@ -27,6 +27,8 @@ class VtkViewerNew(_ViewerBase):
 
         self.clipperPlaneWidget = None
 
+        self.bBuiltPipelines = False
+
     def initVtk(self):
         # create a renderer
         self.ren = _vtk.vtkRenderer()
