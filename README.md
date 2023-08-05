@@ -19,6 +19,12 @@ Carlo (Geant4 and Fluka) geometries.
 ```console
 > pip install pyg4ometry
 ```
+## Credit pyg4ometry
+
+If you use pyg4ometry please consider citing it, the most recent publication is
+[Computer Physics Communications Volume 272, March 2022, 108228](https://www.sciencedirect.com/science/article/pii/S0010465521003404>)
+
+## Installing
 
 > **Note**
 > Most dependencies are available from pip but you will need to install OpenCASCADE
