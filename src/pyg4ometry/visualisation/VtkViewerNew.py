@@ -537,8 +537,27 @@ class VtkViewerNew(_ViewerBase):
         if interactive:
             self.iren.Start()
 
+    def viewStaticJuypter(self):
+        from IPython.display import Image
+
+        self.renWin.SetOffScreenRendering(1)
+        self.renWin.SetSize(600, 600)
+        self.renWin.Render()
+
+        windowToImageFilter = _vtk.vtkWindowToImageFilter()
+        windowToImageFilter.SetInput(self.renWin)
+        windowToImageFilter.Update()
+
+        writer = _vtk.vtkPNGWriter()
+        writer.SetWriteToMemory(1)
+        writer.SetInputConnection(windowToImageFilter.GetOutputPort())
+        writer.Write()
+        data = bytes(memoryview(writer.GetResult()))
+
+        return Image(data)
+
     def __repr__(self):
-        return ""
+        return "VtkViewerNew"
 
     def addTracks(self, pd):
         mapper = _vtk.vtkPolyDataMapper()

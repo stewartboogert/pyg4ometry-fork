@@ -92,9 +92,10 @@ def Test(vis=False, interactive=False, writeNISTMaterials=False, outputPath=None
     # visualisation
     v = None
     if vis:
-        v = _vi.PubViewer()
+        v = _vi.VtkViewerNew()
         v.addLogicalVolume(reg.getWorldVolume())
         v.addAxes(_vi.axesFromExtents(extentBB)[0])
+        v.buildPipelinesAppend()
         v.view(interactive=interactive)
 
     return {"meshInfo": meshInfo, "logicalVolume": wl, "vtkViewer": v, "registry": reg}
