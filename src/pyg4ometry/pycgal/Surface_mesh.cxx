@@ -360,6 +360,41 @@ void toCGALSurfaceMesh(Surface_mesh_EPECK &sm1, Surface_mesh_ECER &sm2) {
     ++iCount;
   }
 }
+
+void toCGALSurfaceMesh(Surface_mesh_ECER &sm1, Surface_mesh_EPECK &sm2) {
+  py::list *polys = new py::list();
+
+  Point_3_EPECK p;
+  for (Surface_mesh_EPECK::Vertex_index vd : sm2.vertices()) {
+    p = sm2.point(vd);
+    sm1.add_vertex(Point_3_ECER(ER(CGAL::to_double(p.x())),
+                                ER(CGAL::to_double(p.y())),
+                                ER(CGAL::to_double(p.z()))));
+  }
+
+  int iCount = 0;
+  for (Surface_mesh_ECER::Face_index fd : sm2.faces()) {
+    std::vector<unsigned int> cell;
+    for (Surface_mesh_ECER::Halfedge_index hd :
+         CGAL::halfedges_around_face(sm2.halfedge(fd), sm2)) {
+      cell.push_back((unsigned int)sm2.source(hd));
+    }
+
+    if (cell.size() == 3) {
+      sm1.add_face(Surface_mesh_EPECK::Vertex_index((size_t)cell[0]),
+                   Surface_mesh_EPECK::Vertex_index((size_t)cell[1]),
+                   Surface_mesh_EPECK::Vertex_index((size_t)cell[2]));
+    } else if (cell.size() == 4) {
+      sm1.add_face(Surface_mesh_EPECK::Vertex_index((size_t)cell[0]),
+                   Surface_mesh_EPECK::Vertex_index((size_t)cell[1]),
+                   Surface_mesh_EPECK::Vertex_index((size_t)cell[2]),
+                   Surface_mesh_EPECK::Vertex_index((size_t)cell[3]));
+    }
+
+    ++iCount;
+  }
+}
+
 /**********************************************************************
 ECER
 **********************************************************************/
@@ -716,4 +751,8 @@ PYBIND11_MODULE(Surface_mesh, m) {
   // {toCGALSurfaceMesh(sm, polygons);});
   m.def("toVerticesAndPolygons",
         [](Surface_mesh_ECER &sm) { return toVerticesAndPolygons(sm); });
+  m.def("toCGALSurfaceMesh",
+        [](Surface_mesh_ECER &sm1, Surface_mesh_EPECK &sm2) {
+          toCGALSurfaceMesh(sm1, sm2);
+        });
 }
