@@ -50,6 +50,7 @@ typedef Kernel_ECER::Point_3 Point_ECER;
 typedef Kernel_ECER::Vector_3 Vector_ECER;
 typedef CGAL::Polyhedron_3<Kernel_ECER> Polyhedron_3_ECER;
 typedef CGAL::Surface_mesh<Point_ECER> Surface_mesh_ECER;
+typedef CGAL::Nef_polyhedron_3<Kernel_ECER> Nef_polyhedron_3_ECER;
 
 #include <CGAL/Polygon_mesh_processing/orientation.h>
 #include <CGAL/aff_transformation_tags.h>
