@@ -13,6 +13,8 @@ namespace py = pybind11;
 #include <CGAL/Polyhedron_incremental_builder_3.h>
 #include <CGAL/Surface_mesh.h>
 
+#include <CGAL/convex_decomposition_3.h>
+
 typedef CGAL::Exact_predicates_exact_constructions_kernel Kernel_EPECK;
 typedef Kernel_EPECK::Point_3 Point_EPECK;
 typedef Kernel_EPECK::Vector_3 Vector_EPECK;
@@ -48,6 +50,7 @@ PYBIND11_MODULE(Nef_polyhedron_3, m) {
   py::class_<Nef_polyhedron_3_EPECK>(m, "Nef_polyhedron_3_EPECK")
       .def(py::init<>())
       .def(py::init<Polyhedron_3_EPECK &>())
+      .def(py::init<Surface_mesh_EPECK &>())
       .def(py::init<Plane_EPECK &>())
       /* Access Member Functions */
       .def("is_simple", &Nef_polyhedron_3_EPECK::is_simple)
@@ -108,6 +111,7 @@ PYBIND11_MODULE(Nef_polyhedron_3, m) {
   py::class_<Nef_polyhedron_3_EPICK>(m, "Nef_polyhedron_3_EPICK")
       .def(py::init<>())
       .def(py::init<Polyhedron_3_EPICK &>())
+      .def(py::init<Surface_mesh_EPICK &>())
       .def(py::init<Plane_EPICK &>())
       /* Access Member Functions */
       .def("is_simple", &Nef_polyhedron_3_EPICK::is_simple)
