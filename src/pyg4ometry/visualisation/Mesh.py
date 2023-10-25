@@ -1,6 +1,6 @@
 import copy as _copy
 
-from .. import config as _config
+import pyg4ometry.config as _config
 import pyg4ometry.exceptions
 
 if _config.meshing == _config.meshingType.pycsg:
