@@ -11,6 +11,7 @@ namespace py = pybind11;
 
 #include <CGAL/Nef_polyhedron_3.h>
 #include <CGAL/Polyhedron_incremental_builder_3.h>
+#include <CGAL/Surface_mesh.h>
 
 typedef CGAL::Exact_predicates_exact_constructions_kernel Kernel_EPECK;
 typedef Kernel_EPECK::Point_3 Point_EPECK;
@@ -22,6 +23,7 @@ typedef Nef_polyhedron_3_EPECK::Volume_const_iterator
     Nef_polyhedron_3_EPECK_Volume_iterator;
 typedef Nef_polyhedron_3_EPECK::Shell_entry_const_iterator
     Nef_polyhedron_3_EPECK_Shell_entry_iterator;
+typedef CGAL::Surface_mesh<Kernel_EPECK::Point_3> Surface_mesh_EPECK;
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel_EPICK;
 typedef Kernel_EPICK::Point_3 Point_EPICK;
@@ -33,12 +35,14 @@ typedef Nef_polyhedron_3_EPICK::Volume_const_iterator
     Nef_polyhedron_3_EPICK_Volume_iterator;
 typedef Nef_polyhedron_3_EPICK::Shell_entry_const_iterator
     Nef_polyhedron_3_EPICK_Shell_entry_iterator;
+typedef CGAL::Surface_mesh<Kernel_EPICK::Point_3> Surface_mesh_EPICK;
 
 typedef CGAL::Exact_rational ER;
 typedef CGAL::Extended_cartesian<ER> Kernel_ECER;
 typedef CGAL::Nef_polyhedron_3<Kernel_ECER> Nef_polyhedron_3_ECER;
 typedef Kernel_ECER::Plane_3 Plane_3_ECER;
 typedef CGAL::Polyhedron_3<Kernel_ECER> Polyhedron_3_ECER;
+typedef CGAL::Surface_mesh<Kernel_ECER::Point_3> Surface_mesh_ECER;
 
 PYBIND11_MODULE(Nef_polyhedron_3, m) {
   py::class_<Nef_polyhedron_3_EPECK>(m, "Nef_polyhedron_3_EPECK")
@@ -158,6 +162,7 @@ PYBIND11_MODULE(Nef_polyhedron_3, m) {
   py::class_<Nef_polyhedron_3_ECER>(m, "Nef_polyhedron_3_ECER")
       .def(py::init<>())
       .def(py::init<Plane_3_ECER &>())
+      .def(py::init<Surface_mesh_ECER &>())
       .def("is_simple", &Nef_polyhedron_3_ECER::is_simple)
       .def("is_valid", &Nef_polyhedron_3_ECER::is_valid)
       .def("number_of_vertices", &Nef_polyhedron_3_ECER::number_of_vertices)
