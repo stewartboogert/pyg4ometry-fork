@@ -42,6 +42,7 @@ jobs:
       - uses: pypa/cibuildwheel@v2.16.2
         env:
           MAKEFLAGS: -j${{ steps.cpu-cores.outputs.count }}
+          CIBW_ARCHS_MACOS: "x86_64  arm64"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v3
