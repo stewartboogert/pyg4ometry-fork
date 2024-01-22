@@ -1,0 +1,38 @@
+d1: drift, l=1*m;
+
+l1: line = (d1);
+use,period=l1;
+
+option, ngenerate=1;
+
+!p1: placement, geometryFile="gdml:T206_OpticalMaterial.gdml",
+!               x=10*cm, y=0*cm, z=0*m,
+!               axisAngle=1,
+!               axisX=1,
+!               angle=0,
+!               referenceElement="d1",
+!               referenceElementNumber=0;
+
+p1: placement, geometryFile="gdml:T206_OpticalMaterial.gdml",
+               x=10*cm, y=0*cm, z=0*m,
+               axisAngle=1,
+               axisX=1,
+               angle=pi/2,
+               referenceElement="d1",
+               referenceElementNumber=0;
+
+!beam, particle="electron",
+!      distrType="reference",
+!      Xp0=0.2*rad,
+!      Yp0=0.0*rad,
+!      energy=60.0*MeV;
+
+beam, particle="-22",
+      distrType="reference",
+      X0=10*cm,
+      Xp0=0*rad,
+      Yp0=0.0*rad,
+      energy=10*eV;
+
+option, physicsList = "em qgsp_bert optical";
+!option, physicsList = "em qgsp_bert";
