@@ -29,3 +29,4 @@ from . import cli
 from . import misc
 from . import analysis
 from . import montecarlo
+from . import gui
