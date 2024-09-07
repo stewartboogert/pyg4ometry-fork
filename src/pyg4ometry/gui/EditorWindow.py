@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import QMainWindow as _QMainWindow
 from PyQt5.QtWidgets import QLabel as _QLabel
 from PyQt5.QtWidgets import QDockWidget as _QDockWidget
 from PyQt5.QtWidgets import QTreeView as _QTreeView
+from PyQt5.QtWidgets import QAction as _QAction
+from PyQt5.QtWidgets import QFileDialog as _QFileDialog
 
 from .ModelGeant4 import ModelGeant4 as _ModelGeant4
 from .VtkWidget import VtkWidget as _VtkWidget
@@ -18,6 +20,29 @@ class EditorWindow(_QMainWindow):
 
     def __init__(self):
         super().__init__()
+
+        # menu
+        menubar = self.menuBar()
+        menubar.setNativeMenuBar(False)
+        fileMenu = menubar.addMenu("File")
+
+        openAction = _QAction("Open", self)
+        openAction.setShortcut("Ctrl+F")
+        openAction.setStatusTip("Open GDML file")
+        openAction.triggered.connect(self.openFileNameDialog)
+        fileMenu.addAction(openAction)
+
+        saveAction = _QAction("Save", self)
+        saveAction.setShortcut("Ctrl+S")
+        saveAction.setStatusTip("Save GDML file")
+        saveAction.triggered.connect(self.saveFileDialog)
+        fileMenu.addAction(saveAction)
+
+        exitAction = _QAction("Exit", self)
+        exitAction.setShortcut("Ctrl+Q")
+        exitAction.setStatusTip("Exit application")
+        exitAction.triggered.connect(self.close)
+        fileMenu.addAction(exitAction)
 
         # tree view for geometry
         self.treeView = _QTreeView()
@@ -32,15 +57,27 @@ class EditorWindow(_QMainWindow):
         self.vtkWidget = _VtkWidget()
         self.setCentralWidget(self.vtkWidget)
 
-        # add temporary geometry to test
-        r = _Reader(
-            "/Users/stewart.boogert/Dropbox/Physics/coderepos/pyg4ometry-testdata/data/gdml/001_box.gdml"
+    def openFileNameDialog(self):
+        options = _QFileDialog.Options()
+        options |= _QFileDialog.DontUseNativeDialog
+        fileName, _ = _QFileDialog.getOpenFileName(
+            self,
+            "QFileDialog.getOpenFileName()",
+            "",
+            "All Files (*);;Python Files (*.py);;GDML files (*.gdml);;STL files (*stl);;STEP files (*step);;FLUKA files (*inp)",
+            options=options,
         )
+
+        r = _Reader(fileName)
         reg = r.getRegistry()
         lv = reg.worldVolume
+        self.vtkWidget.clear()
         self.vtkWidget.addLogicalVolume(lv)
         self.vtkWidget.buildPipelinesAppend()
         self.vtkWidget.iren.Initialize()
+
+    def saveFileDialog(self):
+        pass
 
 
 def start_gui():
