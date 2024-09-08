@@ -83,8 +83,8 @@ class EditorWindow(_QMainWindow):
 def start_gui():
     app = _QApplication(sys.argv)
     win = EditorWindow()
-    win.setGeometry(100, 100, 500, 500)
-    win.setWindowTitle("MC Geometry editor")
+    win.setGeometry(100, 100, 800, 500)
+    win.setWindowTitle("MC Geometry viewer")
 
     win.show()
     sys.exit(app.exec_())
