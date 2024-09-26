@@ -402,11 +402,6 @@ class ViewerBase:
                 elif includeWireframe:
                     aabb.union(obb.getAABB())
 
-        print(aabb)
-        # print(v)
-        # if v.representation != "wireframe" :
-        #    print(aabb)
-
         return aabb
 
     def exportGLTFScene(self, gltfFileName="test.gltf", singleInstance=False):
