@@ -8,6 +8,17 @@ from .VisualisationOptions import (
     getPredefinedMaterialVisOptions as _getPredefinedMaterialVisOptions,
 )
 
+from vtkmodules.vtkRenderingOpenGL2 import (
+    vtkCameraPass as _vtkCameraPass,
+    vtkRenderPassCollection as _vtkRenderPassCollection,
+    vtkSequencePass as _vtkSequencePass,
+    vtkShadowMapPass as _vtkShadowMapPass,
+)
+
+from vtkmodules.vtkFiltersSources import vtkCubeSource as _vtkCubeSource
+
+from pyg4ometry.pycgal.Polygon_mesh_processing import isotropic_remeshing as _isotropic_remeshing
+
 # from pyg4ometry.pycgal.Polygon_mesh_processing import isotropic_remeshing as _isotropic_remeshing
 
 
@@ -44,6 +55,9 @@ class VtkViewerNew(_ViewerBase):
             self.addAxesWidget()
 
         self.bBuiltPipelines = False
+
+        self.iLightColour = 0
+        self.namedColours = _vtk.vtkNamedColors()
 
     def initVtk(self):
         # create a renderer
@@ -144,6 +158,72 @@ class VtkViewerNew(_ViewerBase):
 
     def addCutterWidget(self):
         pass
+
+    def addGroundPlane(
+        self,
+        aabb=None,
+        faceNumber=0,
+        fracGroundThicknessPercent=0.05,
+        fracExtentGroundTransverse=2.0,
+    ):
+
+        plane = _vtkCubeSource()
+
+        c, s = aabb.getGroundBox(faceNumber, fracExtentForGround=fracGroundThicknessPercent)
+
+        if aabb:
+            plane.SetCenter(*c)
+            plane.SetXLength(s[0] * fracExtentGroundTransverse)
+            plane.SetYLength(s[1] * fracExtentGroundTransverse)
+            plane.SetZLength(s[2] * fracExtentGroundTransverse)
+        else:
+            plane.SetCenter(0, -20, 0)
+            plane.SetXLength(50)
+            plane.SetYLength(1)
+            plane.SetZLength(50)
+
+        planeMapper = _vtk.vtkPolyDataMapper()
+        planeMapper.SetInputConnection(plane.GetOutputPort())
+
+        planeActor = _vtk.vtkActor()
+        planeActor.SetMapper(planeMapper)
+        self.ren.AddActor(planeActor)
+
+    def addShadows(self):
+        self.renWin.SetMultiSamples(0)
+
+        shadows = _vtkShadowMapPass()
+
+        seq = _vtkSequencePass()
+
+        passes = _vtkRenderPassCollection()
+        passes.AddItem(shadows.GetShadowMapBakerPass())
+        passes.AddItem(shadows)
+        seq.SetPasses(passes)
+
+        cameraP = _vtkCameraPass()
+        cameraP.SetDelegatePass(seq)
+
+        # Tell the renderer to use our render pass pipeline
+        glrenderer = self.ren
+        glrenderer.SetPass(cameraP)
+
+        # transparent objects are not rendered so need to switch alpha to 1
+        for k in self.actors:
+            self.actors[k].GetProperty().SetOpacity(1.0)
+
+    def addLight(self, position=[100, 100, 100], focus=[0, 0, 0], colour=[255, 255, 255, 255]):
+
+        lightColourName = "lightColor" + str(self.iLightColour)
+        self.namedColours.SetColor(lightColourName, colour)
+        self.iLightColour += 1
+
+        light = _vtk.vtkLight()
+        light.SetFocalPoint(*focus)
+        light.SetPosition(*position)
+        light.SetIntensity(1.0)
+        light.SetColor(self.namedColours.GetColor3d(lightColourName))
+        self.ren.AddLight(light)
 
     def exportCutter(self, name, fileName):
         self.cuttersAppFlt = _vtk.vtkAppendPolyData()
@@ -287,11 +367,16 @@ class VtkViewerNew(_ViewerBase):
                 actor.SetMapper(map)
                 vtrans = _Convert.pyg42VtkTransformation(ip["transformation"], ip["translation"])
                 actor.SetUserMatrix(vtrans)
-                visopt = vos[i]
-                rgb = visopt.colour
-                alpha = visopt.alpha
+                visOpt = vos[i]
+                rgb = visOpt.colour
+                alpha = visOpt.alpha
                 actor.GetProperty().SetColor(rgb)
-                actor.GetProperty().SetOpacity(alpha)
+
+                actor.GetProperty().SetSpecular(visOpt.specular)
+                actor.GetProperty().SetDiffuse(visOpt.diffuse)
+                actor.GetProperty().SetAmbient(visOpt.ambient)
+                actor.GetProperty().SetSpecularPower(visOpt.specularPower)
+                actor.GetProperty().SetOpacity(visOpt.alpha)
 
                 self.actors[k + str(i)] = actor
                 self.ren.AddActor(actor)
@@ -498,8 +583,13 @@ class VtkViewerNew(_ViewerBase):
             if visOpt.representation == "wireframe":
                 actor.GetProperty().SetRepresentationToWireframe()
 
-            actor.GetProperty().SetOpacity(visOpt.alpha)
             actor.GetProperty().SetColor(*visOpt.colour)
+
+            actor.GetProperty().SetSpecular(visOpt.specular)
+            actor.GetProperty().SetDiffuse(visOpt.diffuse)
+            actor.GetProperty().SetAmbient(visOpt.ambient)
+            actor.GetProperty().SetSpecularPower(visOpt.specularPower)
+            actor.GetProperty().SetOpacity(visOpt.alpha)
 
             self.ren.AddActor(actor)
 
