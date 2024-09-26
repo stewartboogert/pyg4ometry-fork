@@ -411,6 +411,32 @@ class ViewerBase:
             for p in self.instancePlacements[k]:
                 p["translation"] = p["translation"] * scaleFactor
 
+    def getExtent(self, includeWireframe=False):
+
+        aabb = _boundingbox.aabb()
+
+        self.localmeshesAABB = {}
+        for k in self.localmeshes:
+            rmin_mesh, rmax_mesh = self.localmeshes[k].extent()
+            self.localmeshesAABB[k] = _boundingbox.aabb(rmin_mesh, rmax_mesh)
+
+        for k in self.instancePlacements:
+            for i, v in zip(self.instancePlacements[k], self.instanceVisOptions[k]):
+                obb = _boundingbox.obb()
+                obb.fromAABB(self.localmeshesAABB[i["name"]])
+                obb.transformMatrix(i["translation"], i["transformation"])
+                if v.representation != "wireframe":
+                    aabb.union(obb.getAABB())
+                elif includeWireframe:
+                    aabb.union(obb.getAABB())
+
+        print(aabb)
+        # print(v)
+        # if v.representation != "wireframe" :
+        #    print(aabb)
+
+        return aabb
+
     def exportGLTFScene(self, gltfFileName="test.gltf", singleInstance=False):
         """Export entire scene as gltf file, filename extension dictates binary (glb) or readable json (gltf)
         singleInstance is a Boolean flag to supress all but one instance"""
