@@ -212,16 +212,20 @@ class VtkViewerNew(_ViewerBase):
         for k in self.actors:
             self.actors[k].GetProperty().SetOpacity(1.0)
 
-    def addLight(self, position=[100, 100, 100], focus=[0, 0, 0], colour=[255, 255, 255, 255]):
+    def addLight(
+        self, position=[100, 100, 100], focus=[0, 0, 0], colour=[255, 255, 255, 255], coneAngle=10
+    ):
 
         lightColourName = "lightColor" + str(self.iLightColour)
         self.namedColours.SetColor(lightColourName, colour)
         self.iLightColour += 1
 
         light = _vtk.vtkLight()
+        light.PositionalOn()
         light.SetFocalPoint(*focus)
         light.SetPosition(*position)
         light.SetIntensity(1.0)
+        light.SetConeAngle(coneAngle)
         light.SetColor(self.namedColours.GetColor3d(lightColourName))
         self.ren.AddLight(light)
 
@@ -339,6 +343,15 @@ class VtkViewerNew(_ViewerBase):
         plane = _vtk.vtkPlane()
         rep.GetPlane(plane)
         self.setClipper(plane.GetOrigin(), plane.GetNormal())
+
+    def addLightActors(self):
+
+        lc = self.ren.GetLights()
+        for i in range(lc.GetNumberOfItems()):
+            light = lc.GetItemAsObject(i)
+            lightActor = _vtk.vtkLightActor()
+            lightActor.SetLight(light)
+            self.ren.AddViewProp(lightActor)
 
     def _polydata2Actor(self, polydata):
         pass
@@ -474,7 +487,7 @@ class VtkViewerNew(_ViewerBase):
             normFlt.SetFeatureAngle(179)
             normFlt.SetInputConnection(appFltDict[k].GetOutputPort())
 
-            normFlt = appFltDict[k]  # bypass the normal filter
+            # normFlt = appFltDict[k]  # bypass the normal filter
 
             # Add cutters
             for ck in self.cutterOrigins:
