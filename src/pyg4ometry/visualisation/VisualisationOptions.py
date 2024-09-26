@@ -39,6 +39,10 @@ class VisualisationOptions:
         representation="surface",
         colour=[0.5, 0.5, 0.5],
         alpha=0.5,
+        specular=0.51,
+        diffuse=0.7,
+        ambient=0.7,
+        specularPower=30.0,
         visible=True,
         lineWidth=1,
         randomColour=False,
@@ -52,11 +56,12 @@ class VisualisationOptions:
         self.randomColour = randomColour
         self.depth = depth
 
-        self.specular = 0.51
-        self.diffuse = 0.7
-        self.ambient = 0.7
-        self.specularPower = 30.0
-        self.opacity = 1.0
+        self.specular = specular
+        self.diffuse = diffuse
+        self.amient = ambient
+        self.specularPower = specularPower
+        self.ambient = ambient
+        self.specularPower = specularPower
 
         # vis options for pbr shaders
         self.usdOptions = UsdPreviewSurfaceOptions()
