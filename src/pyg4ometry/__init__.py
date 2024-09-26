@@ -27,6 +27,7 @@ from . import features
 from . import bdsim
 from . import cli
 from . import misc
+from . import boundingbox
 from . import analysis
 from . import montecarlo
 
