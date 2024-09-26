@@ -418,6 +418,29 @@ class CSG:
     def minEdgeLength(self):
         return float(min(self.lengthAngleDistribution()["lengths"]))
 
+    def extent(self):
+        rmin = _np.array([1e99, 1e99, 1e99])
+        rmax = -rmin
+        vAp = self.toVerticesAndPolygons()
+        verts = vAp[0]
+
+        for v in verts:
+            if v[0] < rmin[0]:
+                rmin[0] = v[0]
+            if v[1] < rmin[1]:
+                rmin[1] = v[1]
+            if v[2] < rmin[2]:
+                rmin[2] = v[2]
+
+            if v[0] > rmax[0]:
+                rmax[0] = v[0]
+            if v[1] > rmax[1]:
+                rmax[1] = v[1]
+            if v[2] > rmax[2]:
+                rmax[2] = v[2]
+
+        return rmin, rmax
+
     def maxEdgeLength(self):
         return float(max(self.lengthAngleDistribution()["lengths"]))
 
