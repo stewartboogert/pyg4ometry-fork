@@ -39,6 +39,12 @@ class VisualisationOptions:
         self.randomColour = randomColour
         self.depth = depth
 
+        self.specular = 0.51
+        self.diffuse = 0.7
+        self.ambient = 0.7
+        self.specularPower = 30.0
+        self.opacity = 1.0
+
     def __repr__(self):
         rgba = [*self.getColour(), self.alpha]
         return (
