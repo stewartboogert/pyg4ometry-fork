@@ -108,7 +108,7 @@ class ViewerBase:
 
             # add instance
             if name is None:
-                name = "world"
+                name = lv.name
             self.addInstance(lv.name, mtra, tra, name)
 
             materialName = lv.material.name
