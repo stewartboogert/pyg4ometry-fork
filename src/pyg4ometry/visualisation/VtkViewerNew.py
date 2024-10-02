@@ -376,7 +376,7 @@ class VtkViewerNew(_ViewerBase):
                 # Cutters
                 #################
                 normFlt = _vtk.vtkPolyDataNormals()  #
-                normFlt.SetFeatureAngle(179)
+                normFlt.SetFeatureAngle(89)
                 normFlt.SetInputConnection(triFlt.GetOutputPort())
 
                 normFlt = triFlt  # bypass the normal filter
@@ -462,7 +462,7 @@ class VtkViewerNew(_ViewerBase):
 
         for k in appFltDict:
             normFlt = _vtk.vtkPolyDataNormals()  #
-            normFlt.SetFeatureAngle(179)
+            normFlt.SetFeatureAngle(89)
             normFlt.SetInputConnection(appFltDict[k].GetOutputPort())
 
             # normFlt = appFltDict[k]  # bypass the normal filter
@@ -573,13 +573,18 @@ class VtkViewerNew(_ViewerBase):
             if visOpt.representation == "wireframe":
                 actor.GetProperty().SetRepresentationToWireframe()
 
+            # normal shading
             actor.GetProperty().SetColor(*visOpt.colour)
-
             actor.GetProperty().SetSpecular(visOpt.specular)
             actor.GetProperty().SetDiffuse(visOpt.diffuse)
             actor.GetProperty().SetAmbient(visOpt.ambient)
             actor.GetProperty().SetSpecularPower(visOpt.specularPower)
-            actor.GetProperty().SetOpacity(visOpt.alpha)
+            # actor.GetProperty().SetOpacity(visOpt.alpha)
+
+            if visOpt.interpolation == "pbr":
+                actor.GetProperty().SetInterpolationToPBR()
+                actor.GetProperty().SetMetallic(1)
+                actor.GetProperty().SetRoughness(0.3)
 
             self.ren.AddActor(actor)
 
