@@ -39,6 +39,7 @@ class VisualisationOptions:
         representation="surface",
         colour=[0.5, 0.5, 0.5],
         alpha=0.5,
+        interpolation="gouraud",  # flat, gouraud, phong, pbr
         specular=0.51,
         diffuse=0.7,
         ambient=0.7,
@@ -49,6 +50,7 @@ class VisualisationOptions:
         depth=0,
     ):
         self.representation = representation
+        self.interpolation = interpolation
         self.colour = colour
         self.alpha = alpha
         self.visible = visible
