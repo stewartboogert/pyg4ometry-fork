@@ -1,16 +1,18 @@
 import numpy as _np
 from ..gdml import Units as _Units
+from ..gdml.Defines import evaluateToFloat
 
 from pxr import Usd, UsdGeom, Gf, Sdf, G4
 
 
-def geant4Reg2Geant4USDStage(reg):
+def geant4Reg2Geant4USDStage(reg, stage=None):
 
     # get world volume
     worldVolume = reg.getWorldVolume()
 
     # open stage
-    stage = Usd.Stage.CreateInMemory()
+    if not stage:
+        stage = Usd.Stage.CreateInMemory()
 
     # convert materials
     geant4Material2USDMaterials(stage, Sdf.Path("/Materials"), reg.materialDict)
@@ -19,7 +21,6 @@ def geant4Reg2Geant4USDStage(reg):
     geant4Logical2USDLogical(stage, Sdf.Path("/"), worldVolume)
 
     return stage
-    # stage.GetRootLayer().Export("test.usda")
 
 
 def geant4Logical2USDLogical(stage, path, logical):
@@ -52,9 +53,12 @@ def geant4Physical2USDPhysical(stage, path, physical):
     geant4Logical2USDLogical(stage, physical_path, physical.logicalVolume)
 
     # make transformation
-    xform = UsdGeom.Xformable(physical_prim)
-    xform.AddTranslateOp().Set(Gf.Vec3d(*physical.position.eval()))
-    xform.AddRotateZYXOp().Set(Gf.Vec3d(*physical.rotation.eval()))
+    physical_prim.GetRotationAttr().Set(
+        Gf.Vec3d(*[a / _np.pi * 180 for a in physical.rotation.eval()])
+    )
+    physical_prim.GetTranslationAttr().Set(Gf.Vec3d(*physical.position.eval()))
+
+    physical_prim.Update()
 
     return physical.name
 
@@ -79,9 +83,10 @@ def geant4Box2UsdBox(stage, path, solid):
     solid_prim = G4.Box.Define(stage, solid_path)
 
     # set parameters
-    solid_prim.GetPrim().GetAttribute("x").Set(solid.pX.eval() / 2)
-    solid_prim.GetPrim().GetAttribute("y").Set(solid.pY.eval() / 2)
-    solid_prim.GetPrim().GetAttribute("z").Set(solid.pZ.eval() / 2)
+    uval = _Units.unit(solid.lunit)
+    solid_prim.GetPrim().GetAttribute("x").Set(solid.evaluateParameter(solid.pX) * uval / 2)
+    solid_prim.GetPrim().GetAttribute("y").Set(solid.evaluateParameter(solid.pY) * uval / 2)
+    solid_prim.GetPrim().GetAttribute("z").Set(solid.evaluateParameter(solid.pZ) * uval / 2)
     solid_prim.Update()
     return solid.name
 
