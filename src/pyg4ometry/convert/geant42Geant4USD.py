@@ -70,6 +70,8 @@ def geant4Solid2UsdSolid(stage, path, solid):
         return geant4Tubs2UsdBox(stage, path, solid)
     elif solid.type == "Cons":
         return geant4Cons2UsdCons(stage, path, solid)
+    elif solid.type == "Orb":
+        return geant4Cons2UsdOrb(stage, path, solid)
     elif solid.type == "Subtraction":
         return geant4Subtraction2UsdSubtraction(stage, path, solid)
     elif solid.type == "Union":
@@ -135,6 +137,22 @@ def geant4Cons2UsdCons(stage, path, solid):
     solid_prim.GetPrim().GetAttribute("sPhi").Set(solid.evaluateParameter(solid.pSPhi) * auval)
     solid_prim.GetPrim().GetAttribute("dPhi").Set(solid.evaluateParameter(solid.pDPhi) * auval)
     solid_prim.GetPrim().GetAttribute("nslice").Set(solid.nslice)
+
+    solid_prim.Update()
+    return solid.name
+
+
+def geant4Cons2UsdOrb(stage, path, solid):
+
+    # create prims
+    solid_path = path.AppendPath(solid.name)
+    solid_prim = G4.Orb.Define(stage, solid_path)
+
+    luval = _Units.unit(solid.lunit)
+
+    solid_prim.GetPrim().GetAttribute("rMax").Set(solid.evaluateParameter(solid.pRMax) * luval)
+    solid_prim.GetPrim().GetAttribute("nslicePhi").Set(solid.nslice)
+    solid_prim.GetPrim().GetAttribute("nsliceTheta").Set(solid.nstack)
 
     solid_prim.Update()
     return solid.name
