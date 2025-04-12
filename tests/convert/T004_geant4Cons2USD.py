@@ -77,7 +77,7 @@ def Test(
     w = _gd.Writer()
     w.addDetector(reg)
 
-    w.write(outputPath / "T004_geant4Cons2Fluka.gdml")
+    w.write(outputPath / "T004_geant4Cons2USD.gdml")
 
     if usd:
         stage = _convert.geant42Geant4USD.geant4Reg2Geant4USDStage(reg)
