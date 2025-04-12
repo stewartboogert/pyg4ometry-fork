@@ -66,6 +66,8 @@ def geant4Physical2USDPhysical(stage, path, physical):
 def geant4Solid2UsdSolid(stage, path, solid):
     if solid.type == "Box":
         return geant4Box2UsdBox(stage, path, solid)
+    elif solid.type == "Tubs":
+        return geant4Tubs2UsdBox(stage, path, solid)
     elif solid.type == "Subtraction":
         return geant4Subtraction2UsdSubtraction(stage, path, solid)
     elif solid.type == "Union":
@@ -74,6 +76,9 @@ def geant4Solid2UsdSolid(stage, path, solid):
         return geant4Intersection2UsdIntersection(stage, path, solid)
     elif solid.type == "MultiUnion":
         return geant4MultiUnion2UsdMultiUnion(stage, path, solid)
+    else:
+        print("Unimplemented solid type")
+        raise (NotImplementedError(solid.type))
 
 
 def geant4Box2UsdBox(stage, path, solid):
@@ -87,6 +92,26 @@ def geant4Box2UsdBox(stage, path, solid):
     solid_prim.GetPrim().GetAttribute("x").Set(solid.evaluateParameter(solid.pX) * uval / 2)
     solid_prim.GetPrim().GetAttribute("y").Set(solid.evaluateParameter(solid.pY) * uval / 2)
     solid_prim.GetPrim().GetAttribute("z").Set(solid.evaluateParameter(solid.pZ) * uval / 2)
+    solid_prim.Update()
+    return solid.name
+
+
+def geant4Tubs2UsdBox(stage, path, solid):
+
+    # create prims
+    solid_path = path.AppendPath(solid.name)
+    solid_prim = G4.Tubs.Define(stage, solid_path)
+
+    luval = _Units.unit(solid.lunit)
+    auval = _Units.unit(solid.aunit)
+
+    solid_prim.GetPrim().GetAttribute("rMin").Set(solid.evaluateParameter(solid.pRMin) * luval)
+    solid_prim.GetPrim().GetAttribute("rMax").Set(solid.evaluateParameter(solid.pRMax) * luval)
+    solid_prim.GetPrim().GetAttribute("sPhi").Set(solid.evaluateParameter(solid.pSPhi) * auval)
+    solid_prim.GetPrim().GetAttribute("dPhi").Set(solid.evaluateParameter(solid.pDPhi) * auval)
+    solid_prim.GetPrim().GetAttribute("z").Set(solid.evaluateParameter(solid.pDz) * luval / 2)
+    solid_prim.GetPrim().GetAttribute("nslice").Set(solid.nslice)
+
     solid_prim.Update()
     return solid.name
 
