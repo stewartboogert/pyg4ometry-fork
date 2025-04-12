@@ -68,6 +68,8 @@ def geant4Solid2UsdSolid(stage, path, solid):
         return geant4Box2UsdBox(stage, path, solid)
     elif solid.type == "Tubs":
         return geant4Tubs2UsdBox(stage, path, solid)
+    elif solid.type == "Cons":
+        return geant4Cons2UsdCons(stage, path, solid)
     elif solid.type == "Subtraction":
         return geant4Subtraction2UsdSubtraction(stage, path, solid)
     elif solid.type == "Union":
@@ -110,6 +112,28 @@ def geant4Tubs2UsdBox(stage, path, solid):
     solid_prim.GetPrim().GetAttribute("sPhi").Set(solid.evaluateParameter(solid.pSPhi) * auval)
     solid_prim.GetPrim().GetAttribute("dPhi").Set(solid.evaluateParameter(solid.pDPhi) * auval)
     solid_prim.GetPrim().GetAttribute("z").Set(solid.evaluateParameter(solid.pDz) * luval / 2)
+    solid_prim.GetPrim().GetAttribute("nslice").Set(solid.nslice)
+
+    solid_prim.Update()
+    return solid.name
+
+
+def geant4Cons2UsdCons(stage, path, solid):
+
+    # create prims
+    solid_path = path.AppendPath(solid.name)
+    solid_prim = G4.Cons.Define(stage, solid_path)
+
+    luval = _Units.unit(solid.lunit)
+    auval = _Units.unit(solid.aunit)
+
+    solid_prim.GetPrim().GetAttribute("rMin1").Set(solid.evaluateParameter(solid.pRmin1) * luval)
+    solid_prim.GetPrim().GetAttribute("rMax1").Set(solid.evaluateParameter(solid.pRmax1) * luval)
+    solid_prim.GetPrim().GetAttribute("rMin2").Set(solid.evaluateParameter(solid.pRmin2) * luval)
+    solid_prim.GetPrim().GetAttribute("rMax2").Set(solid.evaluateParameter(solid.pRmax2) * luval)
+    solid_prim.GetPrim().GetAttribute("z").Set(solid.evaluateParameter(solid.pDz) * luval / 2)
+    solid_prim.GetPrim().GetAttribute("sPhi").Set(solid.evaluateParameter(solid.pSPhi) * auval)
+    solid_prim.GetPrim().GetAttribute("dPhi").Set(solid.evaluateParameter(solid.pDPhi) * auval)
     solid_prim.GetPrim().GetAttribute("nslice").Set(solid.nslice)
 
     solid_prim.Update()
