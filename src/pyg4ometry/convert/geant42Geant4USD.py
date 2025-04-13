@@ -282,8 +282,8 @@ def geant4MultiUnion2UsdMultiUnion(stage, path, solid):
         lunit = _Units.unit(t[1].unit)
         aunit = _Units.unit(t[0].unit)
 
-        r = [r / aunit for r in t[0].eval()]
-        d = [d / lunit for d in t[1].eval()]
+        r = list(t[0].eval())
+        d = list(t[1].eval())
 
         displaced_solid_name = geant4Displaced2UsdDisplaced(stage, solid_path, s, r, d, i)
         displaced_solid_names.append(displaced_solid_name)
