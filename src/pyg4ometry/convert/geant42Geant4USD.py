@@ -43,14 +43,34 @@ def geant4Logical2USDLogical(stage, path, logical):
     return logical.name
 
 
+def geant4Assembly2USDAssembly(stage, path, assembly):
+
+    # create logical prim
+    assembly_path = path.AppendPath(assembly.name)
+    assembly_prim = G4.Assembly.Define(stage, assembly_path)
+
+    # create daughters
+    physical_path_list = []
+    for daughter in assembly.daughterVolumes:
+        physical_path = geant4Physical2USDPhysical(stage, assembly_path, daughter)
+        physical_path_list.append(physical_path)
+    assembly_prim.GetPrim().GetAttribute("daughters").Set(physical_path_list)
+
+    return assembly.name
+
+
 def geant4Physical2USDPhysical(stage, path, physical):
 
     # create physical prim
     physical_path = path.AppendPath(physical.name)
     physical_prim = G4.Placement.Define(stage, physical_path)
 
-    # create logical
-    geant4Logical2USDLogical(stage, physical_path, physical.logicalVolume)
+    # create logical/physical
+    print(physical.logicalVolume.type)
+    if physical.logicalVolume.type == "logical":
+        geant4Logical2USDLogical(stage, physical_path, physical.logicalVolume)
+    elif physical.logicalVolume.type == "assembly":
+        geant4Assembly2USDAssembly(stage, physical_path, physical.logicalVolume)
 
     # make transformation
     physical_prim.GetRotationAttr().Set(
