@@ -288,6 +288,10 @@ def geant4MultiUnion2UsdMultiUnion(stage, path, solid):
         displaced_solid_name = geant4Displaced2UsdDisplaced(stage, solid_path, s, r, d, i)
         displaced_solid_names.append(displaced_solid_name)
 
+        # make displaced invisible
+        displaced_solid = solid_prim.GetPrim().GetChild(displaced_solid_name)
+        displaced_solid.GetPrim().GetAttribute("visibility").Set("invisible")
+
     # create result prim
     result = UsdGeom.Mesh.Define(stage, solid_path.AppendPath("result"))
 
