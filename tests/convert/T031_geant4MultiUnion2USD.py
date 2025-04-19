@@ -36,7 +36,7 @@ def Test(
 
     _rand.seed(1234567890)
 
-    nbox = 3
+    nbox = 20
     solids = []
     transforms = []
     for i in range(0, nbox, 1):
