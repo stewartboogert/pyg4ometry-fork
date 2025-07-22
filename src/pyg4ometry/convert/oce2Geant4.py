@@ -184,11 +184,11 @@ def _oce2Geant4_traverse(
     node = _pyoce.TCollection.TCollection_AsciiString()
     _pyoce.TDF.TDF_Tool.Entry(label, node)
 
-    if (
-        name is None or name in badCADLabels or oceName
-    ):  # TODO must be a better way of finding these generic names
-        name = node.ToCString()
-        name = "l_" + name.replace(":", "_")
+    # if (
+    #    name is None or name in badCADLabels or oceName
+    # ):  # TODO must be a better way of finding these generic names
+    name = node.ToCString()
+    name = "l_" + name.replace(":", "_")
 
     if name.find("-") != -1:
         name = name.replace("-", "_")
@@ -289,20 +289,6 @@ def _oce2Geant4_traverse(
 
         return physicalVolume
 
-    elif shapeTool.IsShape(label):  #  and label.NbChildren() == 0:
-        # print("Shape with no children")
-
-        # make solid
-        solid = oceShape_Geant4_Tessellated(name, shape, greg, meshQuality[0], meshQuality[1])
-
-        if solid is None:
-            return None
-        else:
-            # make logicalVolume
-            logicalVolume = oceShape_Geant4_LogicalVolume(name, solid, material, greg)
-
-            return logicalVolume
-
     elif shapeTool.IsShape(label) and label.NbChildren() != 0:
         # print("Shape with children", label.NbChildren())
 
@@ -356,6 +342,20 @@ def _oce2Geant4_traverse(
             )
 
         return assembly
+
+    elif shapeTool.IsShape(label):  #  and label.NbChildren() == 0:
+        # print("Shape with no children")
+
+        # make solid
+        solid = oceShape_Geant4_Tessellated(name, shape, greg, meshQuality[0], meshQuality[1])
+
+        if solid is None:
+            return None
+        else:
+            # make logicalVolume
+            logicalVolume = oceShape_Geant4_LogicalVolume(name, solid, material, greg)
+
+            return logicalVolume
 
     else:
         print(name, "missing compound 2")
