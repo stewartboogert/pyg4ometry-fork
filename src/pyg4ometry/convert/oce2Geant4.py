@@ -97,7 +97,8 @@ def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.5, angDef=0.5):
         )
         # TODO why is the triangulation none?
         if triangulation is None:
-            print("empty triangulation")
+            del greg.solidDict[name]
+            print(name, " empty triangulation")
             break
 
         topoExp.Next()
@@ -165,6 +166,41 @@ def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.5, angDef=0.5):
         topoExp.Next()
 
     g4t.removeDuplicateVertices()
+
+    g4t_mesh = g4t.mesh()
+    if not g4t_mesh.isClosed():
+        print(name, " not closed")
+        return None
+
+    # if name == "l_0_1_1_426" :
+    #    del greg.solidDict[name]
+    #    print("skipping ", name)
+    #    return None
+    # if name == "l_0_1_1_422" :
+    #    del greg.solidDict[name]
+    #    print("skipping ", name)
+    #    return None
+    # if name == "l_0_1_1_416" :
+    #    del greg.solidDict[name]
+    #    print("skipping ", name)
+    #    return None
+    # if name == "l_0_1_1_415" :
+    #    del greg.solidDict[name]
+    #    print("skipping ", name)
+    #    return None
+
+    # if g4t_mesh.maxEdgeLengthRatio() > 10 :
+    #    print("needle ", name, g4t_mesh.maxEdgeLengthRatio())
+    #    del greg.solidDict[name]
+    #    return None
+
+    # if g4t_mesh.minEdgeLength() < 0.1 :
+    #    print(name, " short edge")
+    #    return None
+
+    # if g4t_mesh.minAngle() < 0.005 :
+    #    print(name, " small angle")
+    #    return None
 
     return g4t
 
@@ -289,6 +325,20 @@ def _oce2Geant4_traverse(
 
         return physicalVolume
 
+    elif shapeTool.IsShape(label):  #  and label.NbChildren() == 0:
+        # print("Shape with no children")
+
+        # make solid
+        solid = oceShape_Geant4_Tessellated(name, shape, greg, meshQuality[0], meshQuality[1])
+
+        if solid is None:
+            return None
+        else:
+            # make logicalVolume
+            logicalVolume = oceShape_Geant4_LogicalVolume(name, solid, material, greg)
+
+            return logicalVolume
+
     elif shapeTool.IsShape(label) and label.NbChildren() != 0:
         # print("Shape with children", label.NbChildren())
 
@@ -342,20 +392,6 @@ def _oce2Geant4_traverse(
             )
 
         return assembly
-
-    elif shapeTool.IsShape(label):  #  and label.NbChildren() == 0:
-        # print("Shape with no children")
-
-        # make solid
-        solid = oceShape_Geant4_Tessellated(name, shape, greg, meshQuality[0], meshQuality[1])
-
-        if solid is None:
-            return None
-        else:
-            # make logicalVolume
-            logicalVolume = oceShape_Geant4_LogicalVolume(name, solid, material, greg)
-
-            return logicalVolume
 
     else:
         print(name, "missing compound 2")

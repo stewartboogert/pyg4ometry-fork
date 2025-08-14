@@ -1,3 +1,5 @@
+import numpy as np
+
 from . import CGAL
 from . import Surface_mesh
 from . import Polygon_mesh_processing
@@ -367,6 +369,78 @@ class CSG:
 
     def area(self):
         return Polygon_mesh_processing.area(self.sm)
+
+    def minAngle(self):
+        vAp = self.toVerticesAndPolygons()
+        v = vAp[0]
+        p = vAp[1]
+        n = vAp[2]
+
+        minAngle = 9e99
+
+        for i, tri in enumerate(p):
+            for j, vertInd in enumerate(tri):
+                v0 = _np.array(v[(j - 1)])
+                v1 = _np.array(v[j])
+                v2 = _np.array(v[(j + 1) % 3])
+
+                v0d = (v1 - v0) / np.linalg.norm(v1 - v0)
+                v2d = (v2 - v0) / np.linalg.norm(v2 - v0)
+
+                ang = _np.arccos(_np.dot(v0d, v2d))
+
+                if ang < minAngle:
+                    minAngle = ang
+
+        return minAngle
+
+    def minArea(self):
+        vAp = self.toVerticesAndPolygons()
+        v = vAp[0]
+        p = vAp[1]
+        n = vAp[2]
+
+        minArea = 1e99
+
+        for i, tri in enumerate(p):
+            v1 = _np.array(v[0])
+            v2 = _np.array(v[1])
+            v3 = _np.array(v[2])
+
+            area = 0.5 * abs(np.cross(v2 - v1, v3 - v1))
+
+            if area < minArea:
+                minArea = area
+
+        return minArea
+
+    def maxEdgeLengthRatio(self):
+        vAp = self.toVerticesAndPolygons()
+        v = vAp[0]
+        p = vAp[1]
+        n = vAp[2]
+
+        maxEdgeRatio = -1e99
+
+        for i, tri in enumerate(p):
+            minEdge = 9e99
+            maxEdge = -9e99
+            for j, vertInd in enumerate(tri):
+                v1 = _np.array(v[j])
+                v2 = _np.array(v[(j + 1) % 3])
+                dv = v2 - v1
+                mdv = _np.sqrt((dv * dv).sum())
+
+                if mdv < minEdge:
+                    minEdge = mdv
+                if mdv > maxEdge:
+                    maxEdge = mdv
+
+            ratio = maxEdge / minEdge
+            if ratio > maxEdgeRatio:
+                maxEdgeRatio = ratio
+
+        return maxEdgeRatio
 
     def minEdgeLength(self):
         vAp = self.toVerticesAndPolygons()
