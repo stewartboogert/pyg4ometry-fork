@@ -66,7 +66,6 @@ def geant4Physical2USDPhysical(stage, path, physical):
     physical_prim = G4.Placement.Define(stage, physical_path)
 
     # create logical/physical
-    print(physical.logicalVolume.type)
     if physical.logicalVolume.type == "logical":
         geant4Logical2USDLogical(stage, physical_path, physical.logicalVolume)
     elif physical.logicalVolume.type == "assembly":
