@@ -38,14 +38,12 @@ requires-python = ">=3.6.8"
 dependencies = [
     "importlib-resources",
     "antlr4-python3-runtime==4.13.1",
-    "configparser",
     "matplotlib",
     "networkx>=3",
     "numpy",
     "pandas",
     "scipy",
     "sympy>=1.7",
-    "testtools",
     "vtk"
 ]
 
