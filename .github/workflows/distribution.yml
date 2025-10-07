@@ -55,7 +55,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-13, macOS-14]
+        # macos-15-intel is an Intel runner, macos-14 is Apple silicon
+        os: [macos-14, macos-15-intel]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
