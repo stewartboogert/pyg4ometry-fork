@@ -89,18 +89,24 @@ def geant4Solid2UsdSolid(stage, path, solid):
         return geant4Tubs2UsdBox(stage, path, solid)
     elif solid.type == "Cons":
         return geant4Cons2UsdCons(stage, path, solid)
-    elif solid.type == "Orb":
-        return geant4Cons2UsdOrb(stage, path, solid)
-    elif solid.type == "Subtraction":
-        return geant4Subtraction2UsdSubtraction(stage, path, solid)
-    elif solid.type == "Union":
-        return geant4Union2UsdUnion(stage, path, solid)
+    elif solid.type == "Ellipsoid":
+        return geant4Ellipsoid2UsdEllipsoid(stage, path, solid)
+    elif solid.type == "GenericPolycone":
+        return geant4GenericPolycone2UsdGenericPolycone(stage, path, solid)
     elif solid.type == "Intersection":
         return geant4Intersection2UsdIntersection(stage, path, solid)
     elif solid.type == "MultiUnion":
         return geant4MultiUnion2UsdMultiUnion(stage, path, solid)
+    elif solid.type == "Orb":
+        return geant4Cons2UsdOrb(stage, path, solid)
+    elif solid.type == "Subtraction":
+        return geant4Subtraction2UsdSubtraction(stage, path, solid)
+    elif solid.type == "TessellatedSolid":
+        return geant4TessellatedSolid2UsdTessellatedSolid(stage, path, solid)
+    elif solid.type == "Union":
+        return geant4Union2UsdUnion(stage, path, solid)
     else:
-        print("Unimplemented solid type")
+        # print("Unimplemented solid type")
         raise (NotImplementedError(solid.type))
 
 
@@ -161,6 +167,16 @@ def geant4Cons2UsdCons(stage, path, solid):
     return solid.name
 
 
+def geant4Ellipsoid2UsdEllipsoid(stage, path, solid):
+    solid_path = path.AppendPath(solid.name)
+    return solid.name
+
+
+def geant4GenericPolycone2UsdGenericPolycone(stage, path, solid):
+    solid_path = path.AppendPath(solid.name)
+    return solid.name
+
+
 def geant4Cons2UsdOrb(stage, path, solid):
 
     # create prims
@@ -200,10 +216,21 @@ def geant4Subtraction2UsdSubtraction(stage, path, solid):
     solid2_prim = solid_prim.GetPrim().GetChild(
         solid_prim.GetPrim().GetAttribute("solid2prim").Get()
     )
-    solid1_prim.GetPrim().GetAttribute("visibility").Set("invisible")
-    solid2_prim.GetPrim().GetAttribute("visibility").Set("invisible")
 
-    solid_prim.Update()
+    try:
+        solid1_prim.GetPrim().GetAttribute("visibility").Set("invisible")
+        solid2_prim.GetPrim().GetAttribute("visibility").Set("invisible")
+        solid_prim.Update()
+    except RuntimeError:
+        print("Could not find prim")
+
+    return solid.name
+
+
+def geant4TessellatedSolid2UsdTessellatedSolid(stage, path, solid):
+    # create prims
+    solid_path = path.AppendPath(solid.name)
+    solid_prim = G4.Union.Define(stage, solid_path)
 
     return solid.name
 
@@ -234,7 +261,10 @@ def geant4Union2UsdUnion(stage, path, solid):
     solid1_prim.GetPrim().GetAttribute("visibility").Set("invisible")
     solid2_prim.GetPrim().GetAttribute("visibility").Set("invisible")
 
-    solid_prim.Update()
+    try:
+        solid_prim.Update()
+    except:
+        print("union boolean processing error")
 
     return solid.name
 
@@ -319,7 +349,10 @@ def geant4MultiUnion2UsdMultiUnion(stage, path, solid):
     solid_prim.GetPrim().GetAttribute("solid3prim").Set("result")
 
     # update
-    solid_prim.Update()
+    try:
+        solid_prim.Update()
+    except:
+        print("multi union boolean processing error")
 
     return solid_name
 
