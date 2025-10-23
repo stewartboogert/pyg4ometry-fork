@@ -68,7 +68,7 @@ jobs:
         run: .github/bin/install-deps-macos.sh
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
@@ -113,7 +113,7 @@ jobs:
         run: .github/bin/install-deps-windows.cmd
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
