@@ -119,6 +119,53 @@ class CSG:
     def polygonCount(self):
         return self.sm.number_of_faces()
 
+    def lengthAngleDistribution(self):
+        vAp = self.toVerticesAndPolygons()
+        v = vAp[0]
+        p = vAp[1]
+        n = vAp[2]
+
+        lmax = -1e99
+        lmin = 1e99
+
+        amax = -1e99
+        amin = 1e99
+
+        larray = []
+        aarray = []
+
+        for i, tri in enumerate(p):
+            v1 = _np.array(v[tri[0]])
+            v2 = _np.array(v[tri[1]])
+            v3 = _np.array(v[tri[2]])
+
+            # print(v1,v2,v3)
+            d1 = v2 - v1
+            d2 = v3 - v2
+            d3 = v1 - v3
+
+            d1norm = d1 / _np.linalg.norm(d1)
+            d2norm = d2 / _np.linalg.norm(d2)
+            d3norm = d3 / _np.linalg.norm(d3)
+
+            l1 = _np.sqrt((d1 * d1).sum())
+            l2 = _np.sqrt((d2 * d2).sum())
+            l3 = _np.sqrt((d3 * d3).sum())
+
+            a1 = _np.acos(_np.dot(d1norm, d2norm)) / _np.pi * 180
+            a2 = _np.acos(_np.dot(d2norm, d3norm)) / _np.pi * 180
+            a3 = _np.acos(_np.dot(d3norm, d1norm)) / _np.pi * 180
+
+            larray.append(float(l1))
+            larray.append(float(l2))
+            larray.append(float(l3))
+
+            aarray.append(float(a1))
+            aarray.append(float(a2))
+            aarray.append(float(a3))
+
+        return {"lengths": _np.array(larray), "angles": _np.array(aarray)}
+
     def intersect(self, csg2):
         out = Surface_mesh.Surface_mesh_EPECK()
         Polygon_mesh_processing.corefine_and_compute_intersection(self.sm, csg2.sm, out)
@@ -369,48 +416,16 @@ class CSG:
         return Polygon_mesh_processing.area(self.sm)
 
     def minEdgeLength(self):
-        vAp = self.toVerticesAndPolygons()
-        v = vAp[0]
-        p = vAp[1]
-        n = vAp[2]
-
-        minEdge = 9e99
-        maxEdge = -9e99
-
-        for i, tri in enumerate(p):
-            for j, vertInd in enumerate(tri):
-                v1 = _np.array(v[j])
-                v2 = _np.array(v[(j + 1) % 3])
-                dv = v2 - v1
-                mdv = _np.sqrt((dv * dv).sum())
-
-                if mdv < minEdge:
-                    minEdge = mdv
-                if mdv > maxEdge:
-                    maxEdge = mdv
-        return minEdge
+        return float(min(self.lengthAngleDistribution()["lengths"]))
 
     def maxEdgeLength(self):
-        vAp = self.toVerticesAndPolygons()
-        v = vAp[0]
-        p = vAp[1]
-        n = vAp[2]
+        return float(max(self.lengthAngleDistribution()["lengths"]))
 
-        minEdge = 9e99
-        maxEdge = -9e99
+    def minAngle(self):
+        return float(min(self.lengthAngleDistribution()["angles"]))
 
-        for i, tri in enumerate(p):
-            for j, vertInd in enumerate(tri):
-                v1 = _np.array(v[j])
-                v2 = _np.array(v[(j + 1) % 3])
-                dv = v2 - v1
-                mdv = _np.sqrt((dv * dv).sum())
-
-                if mdv < minEdge:
-                    minEdge = mdv
-                if mdv > maxEdge:
-                    maxEdge = mdv
-        return maxEdge
+    def maxAngle(self):
+        return float(max(self.lengthAngleDistribution()["angles"]))
 
     def isNull(self):
         return self.sm.number_of_faces() == 0
@@ -433,12 +448,15 @@ class CSG:
             "closed": self.isClosed(),
             "triangle": self.isTriangleMesh(),
             "outward": self.isOutwardOriented(),
+            "selfintersect": self.doesSelfIntersect(),
             "volume": self.volume(),
             "area": self.area(),
             "numberfaces": self.getNumberPolys(),
             "numbervertices": self.getNumberVertices(),
             "minEdge": self.minEdgeLength(),
             "maxEdge": self.maxEdgeLength(),
+            "minAngle": self.minAngle(),
+            "maxAngle": self.maxAngle(),
         }
 
     def loadOff(self, fileName):
