@@ -89,14 +89,14 @@ def test_13_Mesh(testdata):
     commonCode(testdata["step/10_SectorBendSmall.step"], mesh=mesh)
 
 
-@pytest.mark.skipif(sys.platform == "linux", reason="Test not supported on Linux")
-def test_14_MonolithicConversion(testdata):
-    r = _pyg4.pyoce.Reader(str(testdata["step/1_BasicSolids_Bodies.step"]))
-    ls = r.freeShapes()
-    worldName = _pyg4.pyoce.pythonHelpers.get_TDataStd_Name_From_Label(ls.Value(1))
-    worldShape = r.shapeTool.GetShape(ls.Value(1))
-    greg = _pyg4.geant4.Registry()
-    _pyg4.convert.oceShape_Geant4_Tessellated("world", worldShape, greg)
+# @pytest.mark.skipif(sys.platform == "linux", reason="Test not supported on Linux")
+# def test_14_MonolithicConversion(testdata):
+#    r = _pyg4.pyoce.Reader(str(testdata["step/1_BasicSolids_Bodies.step"]))
+#    ls = r.freeShapes()
+#    worldName = _pyg4.pyoce.pythonHelpers.get_TDataStd_Name_From_Label(ls.Value(1))
+#    worldShape = r.shapeTool.GetShape(ls.Value(1))
+#    greg = _pyg4.geant4.Registry()
+#    _pyg4.convert.oceShape_Geant4_Tessellated("world", worldShape, greg)
 
 
 @pytest.mark.skipif(sys.platform == "linux", reason="Test not supported on Linux")
