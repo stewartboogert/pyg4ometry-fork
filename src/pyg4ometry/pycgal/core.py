@@ -152,9 +152,9 @@ class CSG:
             l2 = _np.sqrt((d2 * d2).sum())
             l3 = _np.sqrt((d3 * d3).sum())
 
-            a1 = _np.acos(_np.dot(d1norm, d2norm)) / _np.pi * 180
-            a2 = _np.acos(_np.dot(d2norm, d3norm)) / _np.pi * 180
-            a3 = _np.acos(_np.dot(d3norm, d1norm)) / _np.pi * 180
+            a1 = _np.arccos(_np.dot(d1norm, d2norm)) / _np.pi * 180
+            a2 = _np.arccos(_np.dot(d2norm, d3norm)) / _np.pi * 180
+            a3 = _np.arccos(_np.dot(d3norm, d1norm)) / _np.pi * 180
 
             larray.append(float(l1))
             larray.append(float(l2))
