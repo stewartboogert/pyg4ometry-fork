@@ -414,13 +414,11 @@ def test_cli_gltf_scale_long(testdata, tmptestdir):
 
 
 def test_cli_view_short(testdata):
-    pass
-    # _cli.main(["-i", testdata["gdml/001_box.gdml"], "-v"], testing=True)
+    _cli.main(["-i", testdata["gdml/001_box.gdml"], "-v"], testing=True)
 
 
 def test_cli_view_long(testdata):
-    pass
-    # _cli.main(["-i", testdata["gdml/001_box.gdml"], "--view"], testing=True)
+    _cli.main(["-i", testdata["gdml/001_box.gdml"], "--view"], testing=True)
 
 
 def test_cli_citation_short(testdata):
