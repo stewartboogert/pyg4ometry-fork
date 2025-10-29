@@ -741,7 +741,7 @@ def lhc_blm(vis=False, interactive=False, n_slice=16, outputPath=None):
     # gdml output
     w = _gd.Writer()
     w.addDetector(reg)
-    w.write(outputPath / "blm_model_colours.gdml")
+    # w.write(outputPath / "blm_model_colours.gdml")
 
     # visualisation
     v = 1

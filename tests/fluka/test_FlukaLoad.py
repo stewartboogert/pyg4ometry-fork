@@ -15,7 +15,7 @@ def _pj(filename):
     return _os.path.join(_os.path.dirname(__file__), filename)
 
 
-def flairLoadWriteTest(fileName, vis=True, interactive=False, quadricRegionAABBs=None):
+def flairLoadWriteTest(fileName, vis=False, interactive=False, quadricRegionAABBs=None):
     r = _fluka.Reader(_pj(fileName))
 
     greg = _fluka2Geant4(r.flukaregistry, quadricRegionAABBs=quadricRegionAABBs)
@@ -27,7 +27,7 @@ def flairLoadWriteTest(fileName, vis=True, interactive=False, quadricRegionAABBs
         v.addAxes(length=20)
         wlv.checkOverlaps()
         v.addLogicalVolume(wlv)
-        v.view(interactive)
+        v.view(interactive=interactive)
 
     w = _gdml.Writer()
     w.addDetector(greg)
