@@ -44,7 +44,7 @@ def oceShape_Geant4_Assembly(name, greg):
     return _g4.AssemblyVolume(name, greg, True)
 
 
-def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.5, angDef=0.5):
+def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.01, angDef=0.01):
     """
     Make a tessellated solid from a OpenCascade shape
 
@@ -63,6 +63,13 @@ def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.5, angDef=0.5):
         return greg.solidDict[name]
     except KeyError:
         pass
+
+    ##############################################
+    # Check if shape is solid
+    ##############################################
+    shapeTopo = _pyoce.pythonHelpers.shapeTopology(shape)
+    if shapeTopo["nSolid"] == 0:
+        return None
 
     ##############################################
     # G4 tessellated solid
@@ -97,8 +104,8 @@ def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.5, angDef=0.5):
         )
         # TODO why is the triangulation none?
         if triangulation is None:
-            print("empty triangulation")
-            break
+            topoExp.Next()
+            continue
 
         topoExp.Next()
 
@@ -132,7 +139,8 @@ def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.5, angDef=0.5):
 
         # TODO why is the triangulation none?
         if triangulation is None:
-            break
+            topoExp.Next()
+            continue
 
         aTrsf = location.Transformation()
         for i in range(1, triangulation.NbNodes() + 1, 1):
@@ -213,13 +221,18 @@ def _oce2Geant4_traverse(
     except KeyError:
         material = "G4_Galactic"
 
-    # print("------------------------------")
-    # print(name, node.ToCString())
-    # print(_oce.pythonHelpers.get_shapeTypeString(shapeTool, label))
-    # print(_oce.pythonHelpers.shapeTopology(shape))
+    shapeTopo = _pyoce.pythonHelpers.shapeTopology(shape)
+    if shapeTopo["nSolid"] > 0:
+        print("------------------------------")
+        print(
+            '"' + name + '"',
+            '"' + node.ToCString() + '"',
+            '"' + _pyoce.pythonHelpers.get_shapeTypeString(shapeTool, label).strip() + '"',
+        )
+        print(shapeTopo)
 
     if shapeTool.IsAssembly(label):
-        # print("Assembly")
+        # print("_oce2Geant4_traverse: Assembly")
 
         # make assembly
         try:
@@ -250,7 +263,7 @@ def _oce2Geant4_traverse(
         return assembly
 
     elif shapeTool.IsComponent(label):
-        # print("Component")
+        # print("_oce2Geant4_traverse: Component")
 
         rlabel = _pyoce.TDF.TDF_Label()
         shapeTool.GetReferredShape(label, rlabel)
@@ -289,8 +302,8 @@ def _oce2Geant4_traverse(
 
         return physicalVolume
 
-    elif shapeTool.IsShape(label):  #  and label.NbChildren() == 0:
-        # print("Shape with no children")
+    elif shapeTool.IsShape(label) and label.NbChildren() == 0:
+        # print("_oce2Geant4_traverse: Shape with no children")
 
         # make solid
         solid = oceShape_Geant4_Tessellated(name, shape, greg, meshQuality[0], meshQuality[1])
@@ -304,7 +317,7 @@ def _oce2Geant4_traverse(
             return logicalVolume
 
     elif shapeTool.IsShape(label) and label.NbChildren() != 0:
-        # print("Shape with children", label.NbChildren())
+        # print("_oce2Geant4_traverse: Shape with children", label.NbChildren())
 
         # make assembly (TODO might require multi union if overlapping)
 
@@ -380,6 +393,8 @@ def oce2Geant4(
 
     label = _pyoce.pythonHelpers.findOCCShapeByName(shapeTool, shapeName)
     if label is None:
+        print("oce2Geant4: label not found using tree node")
+
         fsl = _pyoce.TDF.TDF_LabelSequence()
         shapeTool.GetFreeShapes(fsl)
 

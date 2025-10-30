@@ -64,6 +64,7 @@ def Test(vis=False, interactive=False, writeNISTMaterials=False, outputPath=None
 
     # test
     meshInfo = bl.mesh.localmesh.info()
+    print(meshInfo)
     # print(meshInfo)
     _mi.compareMeshInfo(
         meshInfo,
@@ -72,12 +73,15 @@ def Test(vis=False, interactive=False, writeNISTMaterials=False, outputPath=None
             "closed": True,
             "triangle": True,
             "outward": True,
+            "selfintersect": False,
             "volume": 1000.0,
             "area": 600.0,
             "numberfaces": 12,
             "numbervertices": 8,
             "minEdge": 10.0,
             "maxEdge": 14.142135623730951,
+            "minAngle": 90.0,
+            "maxAngle": 135.0,
         },
     )
 

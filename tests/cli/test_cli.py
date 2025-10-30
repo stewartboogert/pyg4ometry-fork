@@ -274,26 +274,30 @@ def test_cli_output_short_gl(testdata):
 
 
 @pytest.mark.skipif(_skip_html_tests, reason="requires jinja2 to run")
-def test_cli_output_short_html(testdata):
-    _cli.main(["-i", testdata["gdml/001_box.gdml"], "-o", "o.html"], testing=True)
+def test_cli_output_short_html(testdata, tmptestdir):
+    _cli.main(["-i", testdata["gdml/001_box.gdml"], "-o", str(tmptestdir / "o.html")], testing=True)
 
 
-def test_cli_output_short_gdml(testdata):
-    _cli.main(["-i", testdata["gdml/001_box.gdml"], "-o", "o.gdml"], testing=True)
+def test_cli_output_short_gdml(testdata, tmptestdir):
+    _cli.main(["-i", testdata["gdml/001_box.gdml"], "-o", str(tmptestdir / "o.gdml")], testing=True)
 
 
-def test_cli_output_long_gdml(testdata):
-    _cli.main(["-i", testdata["gdml/001_box.gdml"], "--output", "o.gdml"], testing=True)
+def test_cli_output_long_gdml(testdata, tmptestdir):
+    _cli.main(
+        ["-i", testdata["gdml/001_box.gdml"], "--output", str(tmptestdir / "o.gdml")], testing=True
+    )
 
 
-def test_cli_output_short_inp(testdata):
-    _cli.main(["-i", testdata["gdml/001_box.gdml"], "-o", "o.inp"], testing=True)
+def test_cli_output_short_inp(testdata, tmptestdir):
+    _cli.main(["-i", testdata["gdml/001_box.gdml"], "-o", str(tmptestdir / "o.inp")], testing=True)
 
 
-def test_cli_output_short_usd(testdata):
+def test_cli_output_short_usd(testdata, tmptestdir):
     # TODO - change once implemented
     with pytest.raises(NotImplementedError) as ex:
-        _cli.main(["-i", testdata["gdml/001_box.gdml"], "-o", "o.usd"], testing=True)
+        _cli.main(
+            ["-i", testdata["gdml/001_box.gdml"], "-o", str(tmptestdir / "o.usd")], testing=True
+        )
     assert ex.type is NotImplementedError
 
 
@@ -303,21 +307,36 @@ def test_cli_output_short_wrong(testdata):
     assert ex.type is OSError
 
 
-def test_cli_planecutter_short(testdata):
+def test_cli_planecutter_short(testdata, tmptestdir):
     _cli.main(
-        ["-i", testdata["gdml/001_box.gdml"], "-p", "0,0,0,0,1,0", "-P", "o.vtkp", "-V"],
+        [
+            "-i",
+            testdata["gdml/001_box.gdml"],
+            "-p",
+            "0,0,0,0,1,0",
+            "-P",
+            tmptestdir / "o.vtkp",
+            "-V",
+        ],
         testing=True,
     )
 
 
-def test_cli_planecutter_long(testdata):
+def test_cli_planecutter_long(testdata, tmptestdir):
     _cli.main(
-        ["-i", testdata["gdml/001_box.gdml"], "--planeCutter", "0,0,0,0,1,0", "-P", "o.vtkp"],
+        [
+            "-i",
+            testdata["gdml/001_box.gdml"],
+            "--planeCutter",
+            "0,0,0,0,1,0",
+            "-P",
+            tmptestdir / "o.vtkp",
+        ],
         testing=True,
     )
 
 
-def test_cli_planecutter_long2(testdata):
+def test_cli_planecutter_long2(testdata, tmptestdir):
     _cli.main(
         [
             "-i",
@@ -325,7 +344,7 @@ def test_cli_planecutter_long2(testdata):
             "--planeCutter",
             "0,0,0,0,1,0",
             "--planeCutterOutput",
-            "box_cut.vtkp",
+            tmptestdir / "box_cut.vtkp",
         ],
         testing=True,
     )
@@ -366,15 +385,30 @@ def test_cli_solid_substitution_long_gdml(testdata):
     assert ex.type is NotImplementedError
 
 
-def test_cli_gltf_scale_short(testdata):
+def test_cli_gltf_scale_short(testdata, tmptestdir):
     _cli.main(
-        ["-i", testdata["gdml/001_box.gdml"], "-S", "1000.0", "-o", "o_scaled.gl"], testing=True
+        [
+            "-i",
+            testdata["gdml/001_box.gdml"],
+            "-S",
+            "1000.0",
+            "-o",
+            str(tmptestdir / "o_scaled.gl"),
+        ],
+        testing=True,
     )
 
 
-def test_cli_gltf_scale_long(testdata):
+def test_cli_gltf_scale_long(testdata, tmptestdir):
     _cli.main(
-        ["-i", testdata["gdml/001_box.gdml"], "--gltfScale", "1000.0", "-o", "o_scaled.gl"],
+        [
+            "-i",
+            testdata["gdml/001_box.gdml"],
+            "--gltfScale",
+            "1000.0",
+            "-o",
+            str(tmptestdir / "o_scaled.gl"),
+        ],
         testing=True,
     )
 

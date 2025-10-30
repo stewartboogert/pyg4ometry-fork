@@ -802,13 +802,15 @@ def test_GdmlLoad_Auxiliary(testdata):
     assert geant4LoadTest(writtenFilename)
 
 
-def test_GdmlLoad_Entity(testdata):
+def test_GdmlLoad_Entity(testdata, tmptestdir):
     # Need to process the GDML file to inject the absolute path to the entity file
     with open(testdata["gdml/203_entity.gdml"]) as infile:
         contents = infile.read()
 
-        contents_replaced = contents.replace("203_materials.xml", _pj("203_materials.xml"))
-        with open(_pj("203_temp.gdml"), "w") as tempfile:
+        contents_replaced = contents.replace(
+            "203_materials.xml", str(tmptestdir / "203_materials.xml")
+        )
+        with open(tmptestdir / "203_materials.xml", "w") as tempfile:
             tempfile.write(contents_replaced)
 
     # TODO write in tmp dir
