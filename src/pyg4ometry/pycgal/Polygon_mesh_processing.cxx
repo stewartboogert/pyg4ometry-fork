@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
@@ -9,6 +11,7 @@ namespace py = pybind11;
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Exact_rational.h>
 #include <CGAL/Extended_cartesian.h>
+#include <CGAL/Mesh_constant_domain_field_3.h>
 #include <CGAL/Surface_mesh.h>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel_EPICK;
@@ -34,14 +37,19 @@ typedef CGAL::Aff_transformation_3<Kernel_ECER> Aff_transformation_3_ECER;
 
 #include <CGAL/Polygon_mesh_processing/border.h>
 #include <CGAL/Polygon_mesh_processing/corefinement.h>
+#include <CGAL/Polygon_mesh_processing/detect_features.h>
 #include <CGAL/Polygon_mesh_processing/distance.h>
 #include <CGAL/Polygon_mesh_processing/orientation.h>
-// #include <CGAL/Polygon_mesh_processing/remesh.h>
+#include <CGAL/Polygon_mesh_processing/remesh.h>
+#include <CGAL/Polygon_mesh_processing/surface_Delaunay_remeshing.h>
 #include <CGAL/Polygon_mesh_processing/transform.h>
 #include <CGAL/Polygon_mesh_processing/triangulate_faces.h>
 // #include <CGAL/Polygon_mesh_processing/angle_and_area_smoothing.h>
 // #include <CGAL/Polygon_mesh_processing/smooth_mesh.h>
+#include <CGAL/Polygon_mesh_processing/IO/polygon_mesh_io.h>
 #include <CGAL/Polygon_mesh_processing/smooth_shape.h>
+
+namespace PMP = CGAL::Polygon_mesh_processing;
 
 PYBIND11_MODULE(Polygon_mesh_processing, m) {
 
@@ -92,6 +100,30 @@ PYBIND11_MODULE(Polygon_mesh_processing, m) {
   m.def("volume", [](Surface_mesh_EPICK &pm1) {
     return CGAL::to_double(CGAL::Polygon_mesh_processing::volume(pm1));
   });
+  /* NOT CGAL API */
+  m.def("isotropic_remeshing_with_sharp", [](Surface_mesh_EPICK &mesh,
+                                             double target_edge_length,
+                                             double angle_threshold,
+                                             int number_iter) {
+    CGAL::IO::write_polygon_mesh("out.off", mesh,
+                                 CGAL::parameters::stream_precision(17));
+
+    std::cout << "Detect features..." << std::endl;
+    using EIFMap =
+        boost::property_map<Surface_mesh_EPICK, CGAL::edge_is_feature_t>::type;
+    EIFMap eif = get(CGAL::edge_is_feature, mesh);
+    PMP::detect_sharp_edges(mesh, angle_threshold, eif);
+
+    std::cout << "Start remeshing of " << num_faces(mesh) << " faces..."
+              << std::endl;
+    PMP::isotropic_remeshing(faces(mesh), target_edge_length, mesh,
+                             CGAL::parameters::number_of_iterations(number_iter)
+                                 .protect_constraints(true)); // i.e. protect
+
+    CGAL::IO::write_polygon_mesh("out_remesh.off", mesh,
+                                 CGAL::parameters::stream_precision(17));
+  });
+
   //  m.def("isotropic_remeshing", [](Surface_mesh_EPICK &pm1,
   //                                  double target_mesh_length, int nb_iter) {
   //    return CGAL::Polygon_mesh_processing::isotropic_remeshing(
@@ -163,6 +195,33 @@ PYBIND11_MODULE(Polygon_mesh_processing, m) {
   m.def("volume", [](Surface_mesh_EPECK &pm1) {
     return CGAL::to_double(CGAL::Polygon_mesh_processing::volume(pm1));
   });
+  /* NOT CGAL API */
+  m.def("detect_sharp_edges_angle",
+        [](Surface_mesh_EPECK &mesh, double angle_threshold) {});
+  /* NOT CGAL API */
+  m.def("isotropic_remeshing_with_sharp", [](Surface_mesh_EPECK &mesh,
+                                             double target_edge_length,
+                                             double angle_threshold,
+                                             int number_iter) {
+    CGAL::IO::write_polygon_mesh("out.off", mesh,
+                                 CGAL::parameters::stream_precision(17));
+
+    std::cout << "Detect features..." << std::endl;
+    using EIFMap =
+        boost::property_map<Surface_mesh_EPECK, CGAL::edge_is_feature_t>::type;
+    EIFMap eif = get(CGAL::edge_is_feature, mesh);
+    PMP::detect_sharp_edges(mesh, angle_threshold, eif);
+
+    std::cout << "Start remeshing of " << num_faces(mesh) << " faces..."
+              << std::endl;
+    PMP::isotropic_remeshing(faces(mesh), target_edge_length, mesh,
+                             CGAL::parameters::number_of_iterations(number_iter)
+                                 .protect_constraints(true)); // i.e. protect
+
+    CGAL::IO::write_polygon_mesh("out_remesh.off", mesh,
+                                 CGAL::parameters::stream_precision(17));
+  });
+
   //  m.def("isotropic_remeshing", [](Surface_mesh_EPECK &pm1,
   //                                  double target_mesh_length, int nb_iter) {
   //    return CGAL::Polygon_mesh_processing::isotropic_remeshing(
