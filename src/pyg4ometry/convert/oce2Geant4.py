@@ -19,10 +19,8 @@ def oceShape_Geant4_LogicalVolume(name, solid, material, greg):
     :param greg: Geant4 registry
     :type greg: geant4.Registry
     """
-    try:
+    if name in greg.logicalVolumeDict:
         return greg.logicalVolumeDict[name]
-    except:
-        pass
 
     return _g4.LogicalVolume(solid, material, name, greg)
 
@@ -36,12 +34,15 @@ def oceShape_Geant4_Assembly(name, greg):
     :param greg: Geant4 registry
     :type greg: geant4.Registry
     """
-    try:
+    if name in greg.logicalVolumeDict:
         return greg.logicalVolumeDict[name]
-    except:
-        pass
 
     return _g4.AssemblyVolume(name, greg, True)
+
+
+def oceShape_Geant4_PhysicalVolume(name, rot, trans, logicalVolume, greg):
+    if name in greg.physicalVolumeDict:
+        pass
 
 
 def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.01, angDef=0.01):
@@ -59,10 +60,8 @@ def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.01, angDef=0.01):
     # Check if already in registry
     ##############################################
 
-    try:
+    if name in greg.solidDict:
         return greg.solidDict[name]
-    except KeyError:
-        pass
 
     ##############################################
     # Check if shape is solid
@@ -223,22 +222,20 @@ def _oce2Geant4_traverse(
 
     shapeTopo = _pyoce.pythonHelpers.shapeTopology(shape)
     if shapeTopo["nSolid"] > 0:
-        print("------------------------------")
-        print(
-            '"' + name + '"',
-            '"' + node.ToCString() + '"',
-            '"' + _pyoce.pythonHelpers.get_shapeTypeString(shapeTool, label).strip() + '"',
-        )
-        print(shapeTopo)
+        pass
+        # print("------------------------------")
+        # print(
+        #    '"' + name + '"',
+        #    '"' + node.ToCString() + '"',
+        #    '"' + _pyoce.pythonHelpers.get_shapeTypeString(shapeTool, label).strip() + '"',
+        # )
+        # print(shapeTopo)
 
     if shapeTool.IsAssembly(label):
         # print("_oce2Geant4_traverse: Assembly")
 
         # make assembly
-        try:
-            return greg.logicalVolumeDict[name]
-        except:
-            assembly = oceShape_Geant4_Assembly(name, greg)
+        assembly = oceShape_Geant4_Assembly(name, greg)
 
         # Loop over children
         for i in range(1, label.NbChildren() + 1, 1):
@@ -321,10 +318,10 @@ def _oce2Geant4_traverse(
 
         # make assembly (TODO might require multi union if overlapping)
 
-        try:
+        if name in greg.logicalVolumeDict:
             return greg.logicalVolumeDict[name]
-        except:
-            assembly = oceShape_Geant4_Assembly(name, greg)
+
+        assembly = oceShape_Geant4_Assembly(name, greg)
 
         # Loop over children
         for i in range(1, label.NbChildren() + 1, 1):
@@ -371,7 +368,7 @@ def _oce2Geant4_traverse(
         return assembly
 
     else:
-        print(name, "missing compound 2")
+        print(name, "missing shape")
 
 
 def oce2Geant4(
