@@ -41,8 +41,10 @@ def oceShape_Geant4_Assembly(name, greg):
 
 
 def oceShape_Geant4_PhysicalVolume(name, rot, trans, logicalVolume, greg):
-    if name in greg.physicalVolumeDict:
-        pass
+    icount = greg.logicalVolumeUsageCountDict[logicalVolume.name]
+    name = name + "_pv" + str(icount)
+    physicalVolume = _g4.PhysicalVolume(rot, trans, logicalVolume, name, None, greg)
+    return physicalVolume
 
 
 def oceShape_Geant4_Tessellated(name, shape, greg, linDef=0.01, angDef=0.01):
@@ -295,7 +297,7 @@ def _oce2Geant4_traverse(
         rot = _transformation.axisangle2tbxyz(ax, -an)
 
         # make physical volume
-        physicalVolume = _g4.PhysicalVolume(rot, trans, logicalVolume, name, None, greg)
+        physicalVolume = oceShape_Geant4_PhysicalVolume(name, rot, trans, logicalVolume, greg)
 
         return physicalVolume
 
