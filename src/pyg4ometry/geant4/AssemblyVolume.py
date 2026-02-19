@@ -299,6 +299,43 @@ class AssemblyVolume:
 
         return max(depthList)
 
+    def makeLogicalPhysicalNameSets(self):
+        """
+        Return a set of logical names and physical names used in this logical volume and any daughters.
+        This is built up recursively by checking all daughters etc.
+        """
+
+        logicalNames = set()
+        physicalNames = set()
+
+        logicalNames.add(self.name)
+
+        for dv in self.daughterVolumes:
+            physicalNames.add(dv.name)
+            lvn, pvn = dv.logicalVolume.makeLogicalPhysicalNameSets()
+            logicalNames = logicalNames.union(lvn)
+            physicalNames = physicalNames.union(pvn)
+        return logicalNames, physicalNames
+
+    def findLogicalByName(self, name):
+        """
+        Return a list of LogicalVolume instances used inside this logical volume
+        as daughters (at any level inside) with the given name.
+
+        :param name: lv name
+        :type name: str
+
+        """
+        lv = []
+        if self.name.find(name) != -1:
+            lv.append(self)
+        for d in self.daughterVolumes:
+            l = d.logicalVolume.findLogicalByName(name)
+            if len(l) != 0:
+                lv.append(l)
+
+        return lv
+
     def getAABBMesh(self):
         """return CSG.core (symmetric around the origin) axis aligned bounding box mesh"""
         extent = self.extent()

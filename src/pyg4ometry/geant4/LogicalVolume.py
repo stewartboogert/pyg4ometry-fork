@@ -1007,6 +1007,13 @@ class LogicalVolume:
             physicalNames = physicalNames.union(pvn)
         return logicalNames, physicalNames
 
+    def findDaughterByName(self, name):
+        for d in self.daughterVolumes:
+            if d.name == name:
+                return d
+
+        return None
+
     def findLogicalByName(self, name):
         """
         Return a list of LogicalVolume instances used inside this logical volume
